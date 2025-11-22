@@ -23,8 +23,39 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
   <title>React App</title>
-  <script type="module" crossorigin src="/assets/index-DoxvDrM_.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-Yw8_oUDi.css">
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#5A31F4",
+            "background-light": "#F7F7F7",
+            "background-dark": "#111827",
+          },
+          fontFamily: {
+            display: ["Lato", "sans-serif"],
+          },
+          borderRadius: {
+            DEFAULT: "0.5rem",
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    .custom-logo {
+      filter: invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
+    }
+
+    .dark .custom-logo {
+      filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&amp;display=swap" rel="stylesheet" />
+  <script type="module" crossorigin src="/assets/index-BJdLL91N.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-DmNLkIZa.css">
 </head>
 
 <body>

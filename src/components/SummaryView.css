@@ -1,0 +1,185 @@
+/* Summary Modal Overlay */
+.summary-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    backdrop-filter: blur(5px);
+}
+
+.summary-modal-content {
+    background-color: white;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 12px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+}
+
+.summary-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e1e3e5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-radius: 12px 12px 0 0;
+}
+
+.summary-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #202223;
+}
+
+.summary-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+/* Printable Content Area */
+.printable-content {
+    padding: 2rem;
+    color: #202223;
+}
+
+.print-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+}
+
+.print-logo {
+    height: 50px;
+    object-fit: contain;
+}
+
+.brief-meta h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: #1a1a1a;
+}
+
+.brief-meta p {
+    margin: 0.5rem 0 0;
+    color: #6d7175;
+}
+
+.print-divider {
+    border: 0;
+    border-top: 1px solid #e1e3e5;
+    margin: 1.5rem 0;
+}
+
+.print-section {
+    margin-bottom: 2rem;
+}
+
+.print-section h3 {
+    font-size: 1.1rem;
+    color: #444;
+    border-bottom: 2px solid #f1f2f4;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.print-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem 2rem;
+}
+
+.print-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.print-field label {
+    font-size: 0.85rem;
+    color: #6d7175;
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+}
+
+.print-field span {
+    font-size: 1rem;
+    font-weight: 400;
+}
+
+.print-text {
+    white-space: pre-wrap;
+    line-height: 1.6;
+}
+
+.print-images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.print-image-thumb {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #e1e3e5;
+}
+
+/* Print Media Query */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    .summary-modal-overlay {
+        position: absolute;
+        background: white;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 9999;
+        overflow: visible;
+    }
+
+    .summary-modal-content {
+        box-shadow: none;
+        width: 100%;
+        max-width: 100%;
+        border: none;
+        overflow: visible;
+    }
+
+    .printable-content,
+    .printable-content * {
+        visibility: visible;
+    }
+
+    .printable-content {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+}

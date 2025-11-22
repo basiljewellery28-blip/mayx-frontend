@@ -9,6 +9,7 @@ import BriefDetail from './components/BriefDetail';
 import CommentsSection from './components/CommentsSection';
 import UserProfile from './components/UserProfile';
 import ClientList from './components/ClientList';
+import AdminDashboard from './components/AdminDashboard';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
@@ -79,6 +80,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ClientList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
             </ProtectedRoute>
           }
         />

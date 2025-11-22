@@ -40,6 +40,9 @@ const Navbar = () => {
                             <NavLink to="/profile" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
                                 Profile
                             </NavLink>
+                            <NavLink to="/admin" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+                                Admin
+                            </NavLink>
                         </>
                     ) : (
                         <Link to="/login" className="nav-link">Login</Link>

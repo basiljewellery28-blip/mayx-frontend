@@ -34,8 +34,8 @@ const CreateBriefForm = ({ onClose, onBriefCreated }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!consultantId) {
-        setError('Could not identify consultant. Please log in again.');
-        return;
+      setError('Could not identify consultant. Please log in again.');
+      return;
     }
     setIsSubmitting(true);
     setError('');
