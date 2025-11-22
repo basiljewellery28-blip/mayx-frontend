@@ -1,70 +1,92 @@
-// src/App.js
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Login from './components/Login';
+import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 import BriefWizard from './components/BriefWizard';
 import BriefList from './components/BriefList';
 import BriefDetail from './components/BriefDetail';
 import CommentsSection from './components/CommentsSection';
+import UserProfile from './components/UserProfile';
+import ClientList from './components/ClientList';
+import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
 function App() {
+  const location = useLocation();
+  const isLoginPage = location.pathname === '/login' || location.pathname === '/register';
+
   return (
-    <Router>
-      <div className="App">
-        <Routes>
-          {/* Public Route */}
-          <Route path="/login" element={<Login />} />
-          
-          {/* Protected Routes */}
-          <Route 
-            path="/dashboard" 
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/create-brief" 
-            element={
-              <ProtectedRoute>
-                <BriefWizard />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/briefs" 
-            element={
-              <ProtectedRoute>
-                <BriefList />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/briefs/:id" 
-            element={
-              <ProtectedRoute>
-                <BriefDetail />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/comments/:briefId" 
-            element={
-              <ProtectedRoute>
-                <CommentsSection />
-              </ProtectedRoute>
-            } 
-          />
-          
-          {/* Default redirect */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
-      </div>
-    </Router>
+    <div className="App">
+      {!isLoginPage && <Navbar />}
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* Protected Routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/create-brief"
+          element={
+            <ProtectedRoute>
+              <BriefWizard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/briefs"
+          element={
+            <ProtectedRoute>
+              <BriefList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/briefs/:id"
+          element={
+            <ProtectedRoute>
+              <BriefDetail />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/comments/:briefId"
+          element={
+            <ProtectedRoute>
+              <CommentsSection />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <UserProfile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/clients"
+          element={
+            <ProtectedRoute>
+              <ClientList />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Default redirect */}
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
+    </div>
   );
 }
 

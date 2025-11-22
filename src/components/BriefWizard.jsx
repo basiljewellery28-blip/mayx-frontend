@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { briefsAPI } from '../services/api';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import './BriefWizard.css';
@@ -61,6 +61,7 @@ const BriefWizard = () => {
 
     // State
     const [formData, setFormData] = useState({
+        title: '',
         category: '',
         ringType: '',
         ringDesign: '',
@@ -447,26 +448,23 @@ const BriefWizard = () => {
     // Saving and PDF
     const saveBrief = async () => {
         try {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                alert('You must be logged in to save a brief.');
+            if (!formData.title) {
+                alert('Please enter a Brief Title.');
                 return;
             }
 
-            const response = await axios.post(
-                `${import.meta.env.VITE_API_BASE_URL}/briefs`,
-                formData,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
+            const response = await briefsAPI.create(formData);
+
             alert('Brief saved successfully!');
-            // Refresh saved briefs list if needed
+            // Redirect to the new brief's detail page or the dashboard
+            if (response.data.brief && response.data.brief.id) {
+                navigate(`/briefs/${response.data.brief.id}`);
+            } else {
+                navigate('/');
+            }
         } catch (error) {
             console.error('Error saving brief:', error);
-            alert('Failed to save brief.');
+            alert('Failed to save brief. ' + (error.response?.data?.message || error.message));
         }
     };
 
@@ -532,6 +530,10 @@ const BriefWizard = () => {
                 <section className="section">
                     <h2 className="section-title">Client Details</h2>
                     <div className="grid grid-2">
+                        <div className="form-group">
+                            <label className="form-label">Brief Title</label>
+                            <input type="text" id="title" className="form-input" value={formData.title} onChange={handleInputChange} placeholder="e.g. Smith Engagement Ring" />
+                        </div>
                         <div className="form-group">
                             <label className="form-label">Full Name</label>
                             <input type="text" id="client-name" className="form-input" value={formData.clientName} onChange={handleInputChange} placeholder="Enter client's full name" />

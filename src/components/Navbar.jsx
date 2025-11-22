@@ -1,9 +1,20 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
+import { getSocket } from '../services/socket';
+import NotificationBell from './NotificationBell';
+import '../App.css';
 
 const Navbar = () => {
     const navigate = useNavigate();
+    const token = localStorage.getItem('authToken');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    useEffect(() => {
+        if (token && user.id) {
+            const socket = getSocket();
+            socket.emit('join_user', user.id);
+        }
+    }, [token, user.id]);
 
     const handleLogout = () => {
         localStorage.removeItem('authToken');
@@ -13,11 +24,35 @@ const Navbar = () => {
 
     return (
         <nav className="navbar">
-            <div className="navbar-brand">MAYX</div>
-            <div className="navbar-menu">
-                <Link to="/dashboard">Dashboard</Link>
-                <Link to="/briefs">Briefs</Link>
-                <button onClick={handleLogout}>Logout ({user.name || 'User'})</button>
+            <div className="navbar-container">
+                <div className="navbar-brand">
+                    <Link to="/">MAYX</Link>
+                </div>
+                <div className="navbar-menu">
+                    {token ? (
+                        <>
+                            <NavLink to="/dashboard" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+                                Dashboard
+                            </NavLink>
+                            <NavLink to="/clients" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+                                Clients
+                            </NavLink>
+                            <NavLink to="/profile" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+                                Profile
+                            </NavLink>
+                        </>
+                    ) : (
+                        <Link to="/login" className="nav-link">Login</Link>
+                    )}
+                </div>
+                <div className="navbar-actions">
+                    {token && (
+                        <>
+                            <NotificationBell />
+                            <button onClick={handleLogout} className="btn-logout">Logout</button>
+                        </>
+                    )}
+                </div>
             </div>
         </nav>
     );

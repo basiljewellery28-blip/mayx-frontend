@@ -17,11 +17,11 @@ const CommentList = ({ briefId }) => {
     try {
       setIsLoading(true);
       setError('');
-      console.log('Fetching comments for brief:', briefId);
-      
+
+
       const response = await briefsAPI.getComments(briefId, currentPage, 10);
-      console.log('Comments response:', response.data);
-      
+
+
       setComments(response.data.comments);
       setPagination(response.data.pagination);
     } catch (error) {
@@ -38,11 +38,11 @@ const CommentList = ({ briefId }) => {
   };
 
   if (isLoading) return <div className="loading">Loading comments...</div>;
-  
+
   return (
     <div className="comment-list">
       <h3>Discussion ({pagination.totalComments || 0})</h3>
-      
+
       {error && (
         <div className="error-message">
           <p>{error}</p>
@@ -51,7 +51,7 @@ const CommentList = ({ briefId }) => {
           </button>
         </div>
       )}
-      
+
       {!error && comments.length === 0 && (
         <div className="empty-state">
           <p>No comments yet. Start the conversation!</p>
@@ -81,19 +81,19 @@ const CommentList = ({ briefId }) => {
           {/* Pagination Controls */}
           {pagination.totalPages > 1 && (
             <div className="pagination">
-              <button 
+              <button
                 onClick={() => setCurrentPage(prev => prev - 1)}
                 disabled={!pagination.hasPrev}
                 className="btn-secondary"
               >
                 Previous
               </button>
-              
+
               <span>
                 Page {pagination.currentPage} of {pagination.totalPages}
               </span>
-              
-              <button 
+
+              <button
                 onClick={() => setCurrentPage(prev => prev + 1)}
                 disabled={!pagination.hasNext}
                 className="btn-secondary"

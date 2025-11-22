@@ -1,17 +1,20 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
 import './index.css';
 import App from './App';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-console.log('Attempting to render App...');
+
 try {
   root.render(
     <React.StrictMode>
-      <App />
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
     </React.StrictMode>
   );
-  console.log('Render called');
+
 } catch (error) {
   console.error('Render failed:', error);
   root.render(<h1>Something went wrong: {error.message}</h1>);
