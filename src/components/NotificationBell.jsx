@@ -27,7 +27,7 @@ const NotificationBell = () => {
 
         // Join user room logic should be handled in Navbar or App, but we can listen here
         const handleNewNotification = (notification) => {
-            console.log('New notification:', notification);
+
             setNotifications(prev => [notification, ...prev]);
             setUnreadCount(prev => prev + 1);
         };

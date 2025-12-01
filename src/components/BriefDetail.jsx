@@ -38,24 +38,36 @@ const BriefDetail = () => {
     const socket = getSocket();
 
     socket.on('brief_status_updated', (updatedBrief) => {
-
       setBrief(prevBrief => ({ ...prevBrief, status: updatedBrief.status }));
+    });
+
+    socket.on('brief_render_status_updated', (updatedBrief) => {
+      setBrief(prevBrief => ({ ...prevBrief, render_status: updatedBrief.render_status, render_files: updatedBrief.render_files }));
     });
 
     return () => {
       leaveBriefRoom(id);
       socket.off('brief_status_updated');
+      socket.off('brief_render_status_updated');
     };
   }, [id]);
 
   const handleStatusUpdate = async (newStatus) => {
     try {
       const response = await briefsAPI.updateStatus(id, newStatus);
-      // Optimistic update or wait for socket? 
-      // Let's wait for socket or just update local state if we want instant feedback for the sender
       setBrief(response.data.brief);
     } catch (err) {
       alert('Error updating status: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const handleRequestRender = async () => {
+    try {
+      await briefsAPI.requestRender(id);
+      setBrief(prevBrief => ({ ...prevBrief, render_status: 'render_requested' }));
+      alert('Render request sent successfully!');
+    } catch (err) {
+      alert('Error requesting render: ' + (err.response?.data?.message || err.message));
     }
   };
 
@@ -106,28 +118,45 @@ const BriefDetail = () => {
       </div>
 
       <div className="brief-content">
+
         {activeTab === 'details' && (
-          <div className="details-view">
+          <div className="brief-details-view">
             <div className="detail-section">
               <h3>Description</h3>
               <p>{brief.description}</p>
             </div>
-            <div className="detail-meta">
-              <div className="meta-item">
-                <label>Client:</label>
-                <span>{brief.client_name || 'Unknown Client'}</span>
-              </div>
-              <div className="meta-item">
-                <label>Consultant:</label>
-                <span>{brief.consultant_name || 'Unknown Consultant'}</span>
-              </div>
-              <div className="meta-item">
-                <label>Created:</label>
-                <span>{new Date(brief.created_at).toLocaleDateString()}</span>
-              </div>
-              <div className="meta-item">
-                <label>Style Code:</label>
-                <span>{brief.style_code_id || 'N/A'}</span>
+
+            <div className="detail-section">
+              <h3>Client Info</h3>
+              <p><strong>Name:</strong> {brief.client_name}</p>
+            </div>
+
+            {/* Render Request Section */}
+            <div className="detail-section">
+              <h3>3D Renders</h3>
+              <div className="render-status-box">
+                <p><strong>Status:</strong> {brief.render_status ? brief.render_status.replace('_', ' ') : 'None'}</p>
+
+                {(!brief.render_status || brief.render_status === 'none' || brief.render_status === 'draft') && (
+                  <button className="btn btn-secondary" onClick={handleRequestRender}>
+                    Request Render
+                  </button>
+                )}
+
+                {brief.render_status === 'render_requested' && (
+                  <p className="status-info">Request sent to design team.</p>
+                )}
+
+                {brief.render_files && brief.render_files.length > 0 && (
+                  <div className="render-gallery">
+                    {brief.render_files.map((file, index) => (
+                      <div key={index} className="render-item">
+                        <img src={file.url || file} alt={`Render ${index + 1}`} />
+                        <a href={file.url || file} download target="_blank" rel="noopener noreferrer">Download</a>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>

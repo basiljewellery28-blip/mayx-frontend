@@ -45,23 +45,40 @@ export const briefsAPI = {
         });
     },
     delete: (id) => api.delete(`/briefs/${id}`),
+    requestRender: (id) => api.post(`/briefs/${id}/request-render`),
+    uploadRender: (id, formData) => api.post(`/briefs/${id}/upload-render`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    }),
 };
 
+// API methods for users
+export const usersAPI = {
+    getMe: () => api.get('/users/me'),
+    getAll: () => api.get('/users'),
+    getProfile: () => api.get('/users/profile'),
+    updateProfile: (userData) => api.put('/users/profile', userData),
+};
+
+// API methods for notifications
 export const notificationsAPI = {
     getAll: () => api.get('/notifications'),
     markRead: (id) => api.put(`/notifications/${id}/read`),
     markAllRead: () => api.put('/notifications/read-all'),
 };
 
-export const usersAPI = {
-    getProfile: () => api.get('/users/profile'),
-    updateProfile: (userData) => api.put('/users/profile', userData),
-};
-
+// API methods for clients
 export const clientsAPI = {
     getAll: () => api.get('/clients'),
 };
 
+// API methods for products
+export const productsAPI = {
+    getAll: (params) => api.get('/products', { params }),
+    getById: (id) => api.get(`/products/${id}`),
+    create: (data) => api.post('/products', data),
+};
+
+// API methods for analytics
 export const analyticsAPI = {
     getSummary: () => api.get('/analytics/summary'),
     getStatusDistribution: () => api.get('/analytics/status-distribution'),

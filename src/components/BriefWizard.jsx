@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { briefsAPI } from '../services/api';
+import { briefsAPI, usersAPI, productsAPI } from '../services/api';
+import ProductSearch from './ProductSearch';
 import SummaryView from './SummaryView';
 import './BriefWizard.css';
 
 // Constants
 const CATEGORIES = ['Ring', 'Earring', 'Necklace and Pendant', 'Bracelet'];
-const RING_TYPES = ['Engagement Rings', 'Dress Rings', 'Mens Wedding Bands', 'Womens Wedding Bands and Eternity Rings', 'Diamond Band'];
+const RING_TYPES = ['Engagement Rings', 'Dress Rings', 'Mens Wedding Bands', 'Womens Wedding Bands and Eternity Rings'];
 const EARRING_TYPES = ['Studs', 'Drops', 'Hoops'];
 const NECKLACE_TYPES = ['Pendants', 'Chokers', 'Chains'];
 const BRACELET_TYPES = ['Bangles', 'Tennis Bracelets', 'Original Angel', 'B Bold', 'Timeless Classics'];
@@ -16,13 +17,61 @@ const DIAMOND_COLOR_GRADES = ['D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M'];
 const DIAMOND_CLARITY_GRADES = ['FL', 'IF', 'VVS1', 'VVS2', 'VS1', 'VS2', 'SI1', 'SI2', 'I1', 'I2', 'I3'];
 const PART_OPTIONS = ['Shank', 'Head', 'Prongs', 'Bezel', 'Halo', 'Gallery', 'Shoulders'];
 const DIAMOND_COVERAGE_OPTIONS = ['25%', '50%', '75%', '100%'];
+const EARRING_CLOSURES = ['Stud Back', 'Hook', 'Lever Back', 'Clip-On', 'French Wire', 'Hinged Hoop'];
+const NECKLACE_LENGTHS = ['14" (Choker)', '16" (Collar)', '18" (Princess)', '20" (Matinee)', '24" (Opera)', '30"+ (Rope)'];
+
+const BROWNS_STORES = [
+    // Gauteng - Johannesburg
+    'Sandton City Shopping Centre',
+    'Nelson Mandela Square',
+    'Rosebank Mall',
+    'Hyde Park Corner',
+    'Mall of Africa',
+    'Fourways Mall',
+    'Eastgate Shopping Centre',
+    'Cresta Shopping Centre',
+    'Clearwater Mall',
+    'Bedford Centre',
+    'Cradlestone Mall',
+    'Mall of the South',
+    'Waterfall Mall',
+    'Vaal Mall',
+    'OR Tambo International Airport',
+    // Gauteng - Pretoria
+    'Menlyn Park Shopping Centre',
+    'Woodlands Boulevard Shopping Centre',
+    'Centurion Mall',
+    'Brooklyn Mall',
+    // North West
+    'The Palace of the Lost City',
+    // Limpopo
+    'Mall of the North',
+    // Mpumalanga
+    "i'langa Mall",
+    // KwaZulu-Natal
+    'The Pavilion Shopping Centre',
+    'Gateway Theatre of Shopping',
+    'La Lucia Mall',
+    'Galleria Mall',
+    'Ballito Junction Mall',
+    'The Midlands Mall',
+    // Western Cape
+    'V&A Waterfront',
+    'Cavendish Square',
+    'Canal Walk Shopping Centre',
+    'Tyger Valley Shopping Centre',
+    'Somerset Mall',
+    'Garden Route Mall',
+    'Cape Town International Airport'
+];
+
+
 
 const RING_DESIGNS = {
     'Engagement Rings': ['Solitaire', 'Halo', 'Trilogy', 'Vintage', 'Side Stones'],
     'Dress Rings': ['Cocktail', 'Statement', 'Stackable'],
     'Mens Wedding Bands': ['Classic', 'Modern', 'Patterned'],
-    'Womens Wedding Bands and Eternity Rings': ['Classic', 'Diamond', 'Curved'],
-    'Diamond Band': ['Classic', 'Eternity', 'Half Eternity']
+    'Womens Wedding Bands and Eternity Rings': ['Classic', 'Diamond', 'Curved']
 };
 
 const BRACELET_SIZES = {
@@ -47,11 +96,15 @@ const BriefWizard = () => {
         consultantName: '',
         consultantSurname: '',
         storeName: '',
+        budget: '',
         category: '',
         ringType: '',
         ringDesign: '',
+
         earringType: '',
+        earringClosure: '', // NEW: Earring closure type
         necklaceType: '',
+        necklaceLength: '', // NEW: Necklace length
         braceletType: '',
         sizeSystem: 'South Africa',
         sizeValue: '',
@@ -67,6 +120,7 @@ const BriefWizard = () => {
         inspirationImages: [],
         alloys: [],
         engraving: '',
+        engravingFont: 'Regular', // NEW: Font style for engraving
         logo: null,
         diamondCoverage: '',
         stoneCount: '',
@@ -77,6 +131,144 @@ const BriefWizard = () => {
     const [uiState, setUiState] = useState({
         showSummaryModal: false
     });
+
+    // Slider state for Men's Wedding Bands
+    const [mensRingSliderIndex, setMensRingSliderIndex] = useState(0);
+
+    const handleMensRingPrevious = () => {
+        setMensRingSliderIndex(prev =>
+            prev === 0 ? Math.max(0, mensWeddingBands.length - 3) : prev - 1
+        );
+    };
+
+    const handleMensRingNext = () => {
+        setMensRingSliderIndex(prev =>
+            prev >= Math.max(0, mensWeddingBands.length - 3) ? 0 : prev + 1
+        );
+    };
+
+    const handleMensRingSelect = (ring) => {
+        setFormData(prev => ({
+            ...prev,
+            ringDesign: ring.name,
+            description: `${prev.description ? prev.description + '\n' : ''}Selected Band: ${ring.name} (SKU: ${ring.sku})`
+        }));
+    };
+
+    // Slider state for Dress Rings
+    const [dressRingSliderIndex, setDressRingSliderIndex] = useState(0);
+    // Slider state for Engagement Rings
+    const [engagementRingSliderIndex, setEngagementRingSliderIndex] = useState(0);
+
+    const handleDressRingPrevious = () => {
+        setDressRingSliderIndex(prev =>
+            prev === 0 ? Math.max(0, dressRings.length - 3) : prev - 1
+        );
+    };
+
+    const handleDressRingNext = () => {
+        setDressRingSliderIndex(prev =>
+            prev >= Math.max(0, dressRings.length - 3) ? 0 : prev + 1
+        );
+    };
+
+    const handleDressRingSelect = (ring) => {
+        setFormData(prev => ({
+            ...prev,
+            ringDesign: ring.name,
+            description: `${prev.description ? prev.description + '\n' : ''}Selected Ring: ${ring.name} (SKU: ${ring.sku})`
+        }));
+    };
+
+    const handleEngagementRingPrevious = () => {
+        setEngagementRingSliderIndex(prev =>
+            prev === 0 ? Math.max(0, engagementRings.length - 3) : prev - 1
+        );
+    };
+
+    const handleEngagementRingNext = () => {
+        setEngagementRingSliderIndex(prev =>
+            prev >= Math.max(0, engagementRings.length - 3) ? 0 : prev + 1
+        );
+    };
+
+    const handleEngagementRingSelect = (ring) => {
+        setFormData(prev => ({
+            ...prev,
+            ringDesign: ring.name,
+            description: `${prev.description ? prev.description + '\n' : ''}Selected Engagement Ring: ${ring.name} (SKU: ${ring.sku})`
+        }));
+    };
+
+    // Slider state for Womens Wedding Bands
+    const [womensRingSliderIndex, setWomensRingSliderIndex] = useState(0);
+
+    const handleWomensRingPrevious = () => {
+        setWomensRingSliderIndex(prev =>
+            prev === 0 ? Math.max(0, womensWeddingBands.length - 3) : prev - 1
+        );
+    };
+
+    const handleWomensRingNext = () => {
+        setWomensRingSliderIndex(prev =>
+            prev >= Math.max(0, womensWeddingBands.length - 3) ? 0 : prev + 1
+        );
+    };
+
+    const handleWomensRingSelect = (ring) => {
+        setFormData(prev => ({
+            ...prev,
+            ringDesign: ring.name,
+            description: `${prev.description ? prev.description + '\n' : ''}Selected Womens Wedding Band: ${ring.name} (SKU: ${ring.sku})`
+        }));
+    };
+
+    // State for dynamic product lists
+    const [mensWeddingBands, setMensWeddingBands] = useState([]);
+    const [dressRings, setDressRings] = useState([]);
+    const [engagementRings, setEngagementRings] = useState([]);
+    const [womensWeddingBands, setWomensWeddingBands] = useState([]);
+
+    // Fetch products on mount
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const [mens, dress, engagement, womens] = await Promise.all([
+                    productsAPI.getAll({ category: 'Ring', sub_category: 'Mens Wedding Bands' }),
+                    productsAPI.getAll({ category: 'Ring', sub_category: 'Dress Rings' }),
+                    productsAPI.getAll({ category: 'Ring', sub_category: 'Engagement Rings' }),
+                    productsAPI.getAll({ category: 'Ring', sub_category: 'Womens Wedding Bands and Eternity Rings' })
+                ]);
+
+                setMensWeddingBands(mens.data.products || []);
+                setDressRings(dress.data.products || []);
+                setEngagementRings(engagement.data.products || []);
+                setWomensWeddingBands(womens.data.products || []);
+            } catch (error) {
+                console.error('Error fetching products:', error);
+            }
+        };
+        fetchProducts();
+    }, []);
+
+    // Fetch consultant info on mount
+    useEffect(() => {
+        const fetchConsultantInfo = async () => {
+            try {
+                const response = await usersAPI.getMe();
+                const user = response.data.user;
+                const nameParts = (user.name || '').split(' ');
+                setFormData(prev => ({
+                    ...prev,
+                    consultantName: nameParts[0] || '',
+                    consultantSurname: nameParts.slice(1).join(' ') || ''
+                }));
+            } catch (error) {
+                console.error('Error fetching consultant info:', error);
+            }
+        };
+        fetchConsultantInfo();
+    }, []);
 
     // Handlers
     const handleInputChange = (e) => {
@@ -200,10 +392,16 @@ const BriefWizard = () => {
         return () => window.removeEventListener('storage', handleStorageChange);
     }, []);
 
+    // Default images for specific items
+    const DEFAULT_IMAGES = {
+        'ringTypes_Mens Wedding Bands': 'https://brownsjewellers.com/cdn/shop/files/9754P_1.png?v=1760963607&width=1600'
+    };
+
     // Helper to get images
     const getImage = (type, key) => {
         const customKey = `${type}_${key}`;
-        return customImages[customKey] || `https://placehold.co/400x400?text=${encodeURIComponent(key)}`;
+        // Priority: custom image > default image > placeholder
+        return customImages[customKey] || DEFAULT_IMAGES[customKey] || `https://placehold.co/400x400?text=${encodeURIComponent(key)}`;
     };
 
     const renderCarousel = (items, selectedItem, onSelect, type, keyPrefix) => {
@@ -267,6 +465,19 @@ const BriefWizard = () => {
                             <input type="text" id="clientProfile" className="form-input" value={formData.clientProfile} onChange={handleInputChange} placeholder="Enter client profile number" />
                         </div>
                     </div>
+                    <div className="grid grid-2">
+                        <div className="form-group">
+                            <label className="form-label">Budget Range</label>
+                            <select id="budget" className="form-select" value={formData.budget} onChange={handleInputChange}>
+                                <option value="">Select Budget</option>
+                                <option value="Under R20,000">Under R20,000</option>
+                                <option value="R20,000 - R50,000">R20,000 - R50,000</option>
+                                <option value="R50,000 - R100,000">R50,000 - R100,000</option>
+                                <option value="R100,000 - R200,000">R100,000 - R200,000</option>
+                                <option value="R200,000+">R200,000+</option>
+                            </select>
+                        </div>
+                    </div>
                 </section>
 
                 {/* Consultant Details */}
@@ -283,8 +494,13 @@ const BriefWizard = () => {
                         </div>
                     </div>
                     <div className="form-group">
-                        <label className="form-label">Store Name</label>
-                        <input type="text" id="storeName" className="form-input" value={formData.storeName} onChange={handleInputChange} placeholder="Enter store name" />
+                        <label className="form-label">Browns Boutique Location</label>
+                        <select id="storeName" className="form-select" value={formData.storeName} onChange={handleInputChange}>
+                            <option value="">Select Store Location</option>
+                            {BROWNS_STORES.map(store => (
+                                <option key={store} value={store}>{store}</option>
+                            ))}
+                        </select>
                     </div>
                 </section>
 
@@ -309,7 +525,7 @@ const BriefWizard = () => {
                 {formData.category === 'Ring' && (
                     <section className="section">
                         <h2 className="section-title">What type of Ring?</h2>
-                        <div className="grid grid-6">
+                        <div className="grid grid-4">
                             {RING_TYPES.map(type => (
                                 <div
                                     key={type}
@@ -326,119 +542,371 @@ const BriefWizard = () => {
 
                 {/* Ring Design Selection */}
                 {formData.category === 'Ring' && formData.ringType && RING_DESIGNS[formData.ringType] && (
-                    <section className="section">
-                        <h2 className="section-title">Select {formData.ringType} Design</h2>
-                        {renderCarousel(RING_DESIGNS[formData.ringType], formData.ringDesign, handleRingDesignSelect, formData.ringType, 'ringDesigns')}
-                    </section>
+                    <>
+                        <section className="section" style={{ paddingBottom: '0', position: 'relative', zIndex: 5 }}>
+                            <div style={{ maxWidth: '400px', margin: '0 auto' }}>
+                                <ProductSearch
+                                    category="Ring"
+                                    subCategory={formData.ringType}
+                                    onSelect={(product) => {
+                                        setFormData(prev => ({
+                                            ...prev,
+                                            ringDesign: product.name,
+                                            description: `${prev.description ? prev.description + '\n' : ''}Selected Ring: ${product.name} (SKU: ${product.sku})`
+                                        }));
+                                    }}
+                                />
+                            </div>
+                        </section>
+
+                        <section className="section">
+                            <h2 className="section-title">Select {formData.ringType} Design</h2>
+
+                            {formData.ringType === 'Engagement Rings' ? (
+                                <>
+                                    <div className="ring-slider">
+                                        <button className="slider-arrow left" onClick={handleEngagementRingPrevious}>
+                                            <i className="fas fa-chevron-left"></i>
+                                        </button>
+
+                                        <div className="slider-container">
+                                            {engagementRings.map((ring, index) => (
+                                                <div
+                                                    key={ring.sku}
+                                                    className={`slider-item ${index === engagementRingSliderIndex ? 'active' : ''} ${formData.ringDesign === ring.name ? 'selected' : ''}`}
+                                                    onClick={() => handleEngagementRingSelect(ring)}
+                                                    style={{
+                                                        transform: `translateX(-${engagementRingSliderIndex * 100}%)`,
+                                                        minWidth: '25%'
+                                                    }}
+                                                >
+                                                    <img
+                                                        src={ring.image_url}
+                                                        alt={ring.name}
+                                                        onError={(e) => {
+                                                            e.target.onerror = null;
+                                                            e.target.src = 'https://brownsjewellers.com/cdn/shop/files/MC9560PT_1_81125d10-b97a-4516-9e60-ec477dcd983a.png?v=1760593919';
+                                                        }}
+                                                    />
+                                                    <span className="ring-name">{ring.name}</span>
+                                                    <span className="ring-sku" style={{ display: 'block', fontSize: '0.8rem', color: '#666' }}>{ring.sku}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <button className="slider-arrow right" onClick={handleEngagementRingNext}>
+                                            <i className="fas fa-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                    <div className="slider-dots">
+                                        {engagementRings.map((_, index) => (
+                                            <span
+                                                key={index}
+                                                className={`dot ${index === engagementRingSliderIndex ? 'active' : ''}`}
+                                                onClick={() => setEngagementRingSliderIndex(index)}
+                                            />
+                                        ))}
+                                    </div>
+                                </>
+                            ) : formData.ringType === 'Womens Wedding Bands and Eternity Rings' ? (
+                                <>
+                                    <div className="ring-slider">
+                                        <button className="slider-arrow left" onClick={handleWomensRingPrevious}>
+                                            <i className="fas fa-chevron-left"></i>
+                                        </button>
+
+                                        <div className="slider-container">
+                                            {womensWeddingBands.map((ring, index) => (
+                                                <div
+                                                    key={ring.sku}
+                                                    className={`slider-item ${index === womensRingSliderIndex ? 'active' : ''} ${formData.ringDesign === ring.name ? 'selected' : ''}`}
+                                                    onClick={() => handleWomensRingSelect(ring)}
+                                                    style={{
+                                                        transform: `translateX(-${womensRingSliderIndex * 100}%)`,
+                                                        minWidth: '25%'
+                                                    }}
+                                                >
+                                                    <img
+                                                        src={ring.image_url}
+                                                        alt={ring.name}
+                                                        onError={(e) => {
+                                                            e.target.onerror = null;
+                                                            e.target.src = 'https://brownsjewellers.com/cdn/shop/files/9340EMY.png?v=1760588054';
+                                                        }}
+                                                    />
+                                                    <span className="ring-name">{ring.name}</span>
+                                                    <span className="ring-sku" style={{ display: 'block', fontSize: '0.8rem', color: '#666' }}>{ring.sku}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <button className="slider-arrow right" onClick={handleWomensRingNext}>
+                                            <i className="fas fa-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                    <div className="slider-dots">
+                                        {womensWeddingBands.map((_, index) => (
+                                            <span
+                                                key={index}
+                                                className={`dot ${index === womensRingSliderIndex ? 'active' : ''}`}
+                                                onClick={() => setWomensRingSliderIndex(index)}
+                                            />
+                                        ))}
+                                    </div>
+                                </>
+                            ) : formData.ringType === 'Mens Wedding Bands' ? (
+                                <>
+                                    <div className="ring-slider">
+                                        <button className="slider-arrow left" onClick={handleMensRingPrevious}>
+                                            <i className="fas fa-chevron-left"></i>
+                                        </button>
+
+                                        <div className="slider-container">
+                                            {mensWeddingBands.map((ring, index) => (
+                                                <div
+                                                    key={ring.sku}
+                                                    className={`slider-item ${index === mensRingSliderIndex ? 'active' : ''} ${formData.ringDesign === ring.name ? 'selected' : ''}`}
+                                                    onClick={() => handleMensRingSelect(ring)}
+                                                    style={{
+                                                        transform: `translateX(-${mensRingSliderIndex * 100}%)`,
+                                                        minWidth: '25%'
+                                                    }}
+                                                >
+                                                    <img
+                                                        src={ring.image_url}
+                                                        alt={ring.name}
+                                                        onError={(e) => {
+                                                            e.target.onerror = null;
+                                                            e.target.src = 'https://brownsjewellers.com/cdn/shop/files/9754P_1.png?v=1760963607&width=1600';
+                                                        }}
+                                                    />
+                                                    <span className="ring-name">{ring.name}</span>
+                                                    <span className="ring-sku" style={{ display: 'block', fontSize: '0.8rem', color: '#666' }}>{ring.sku}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <button className="slider-arrow right" onClick={handleMensRingNext}>
+                                            <i className="fas fa-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                    <div className="slider-dots">
+                                        {mensWeddingBands.map((_, index) => (
+                                            <span
+                                                key={index}
+                                                className={`dot ${index === mensRingSliderIndex ? 'active' : ''}`}
+                                                onClick={() => setMensRingSliderIndex(index)}
+                                            />
+                                        ))}
+                                    </div>
+                                </>
+                            ) : formData.ringType === 'Dress Rings' ? (
+                                <>
+                                    <div className="ring-slider">
+                                        <button className="slider-arrow left" onClick={handleDressRingPrevious}>
+                                            <i className="fas fa-chevron-left"></i>
+                                        </button>
+
+                                        <div className="slider-container">
+                                            {dressRings.map((ring, index) => (
+                                                <div
+                                                    key={ring.sku}
+                                                    className={`slider-item ${index === dressRingSliderIndex ? 'active' : ''} ${formData.ringDesign === ring.name ? 'selected' : ''}`}
+                                                    onClick={() => handleDressRingSelect(ring)}
+                                                    style={{
+                                                        transform: `translateX(-${dressRingSliderIndex * 100}%)`,
+                                                        minWidth: '25%'
+                                                    }}
+                                                >
+                                                    <img
+                                                        src={ring.image_url}
+                                                        alt={ring.name}
+                                                        onError={(e) => {
+                                                            e.target.onerror = null;
+                                                            e.target.src = 'https://brownsjewellers.com/cdn/shop/files/9500BST_1_2c6ea06c-e3da-4261-b684-77e32a835e38.png?v=1760660103';
+                                                        }}
+                                                    />
+                                                    <span className="ring-name">{ring.name}</span>
+                                                    <span className="ring-sku" style={{ display: 'block', fontSize: '0.8rem', color: '#666' }}>{ring.sku}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <button className="slider-arrow right" onClick={handleDressRingNext}>
+                                            <i className="fas fa-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                    <div className="slider-dots">
+                                        {dressRings.map((_, index) => (
+                                            <span
+                                                key={index}
+                                                className={`dot ${index === dressRingSliderIndex ? 'active' : ''}`}
+                                                onClick={() => setDressRingSliderIndex(index)}
+                                            />
+                                        ))}
+                                    </div>
+                                </>
+                            ) : (
+                                renderCarousel(RING_DESIGNS[formData.ringType], formData.ringDesign, handleRingDesignSelect, formData.ringType, 'ringDesigns')
+                            )}
+                        </section>
+                    </>
                 )}
 
                 {/* Earring Type Selection */}
-                {formData.category === 'Earring' && (
-                    <section className="section">
-                        <h2 className="section-title">What type of Earring?</h2>
-                        <div className="grid grid-4">
-                            {EARRING_TYPES.map(type => (
-                                <div
-                                    key={type}
-                                    className={`visual-card-select ${formData.earringType === type ? 'active' : ''}`}
-                                    onClick={() => handleEarringTypeSelect(type)}
-                                >
-                                    <img src={getImage('earringTypes', type)} alt={type} />
-                                    <span className="visual-card-label">{type.toUpperCase()}</span>
+                {
+                    formData.category === 'Earring' && (
+                        <section className="section">
+                            <h2 className="section-title">What type of Earring?</h2>
+                            <div className="grid grid-4">
+                                {EARRING_TYPES.map(type => (
+                                    <div
+                                        key={type}
+                                        className={`visual-card-select ${formData.earringType === type ? 'active' : ''}`}
+                                        onClick={() => handleEarringTypeSelect(type)}
+                                    >
+                                        <img src={getImage('earringTypes', type)} alt={type} />
+                                        <span className="visual-card-label">{type.toUpperCase()}</span>
+                                    </div>
+                                ))}
+                            </div>
+                            {formData.earringType && (
+                                <div className="grid grid-2" style={{ marginTop: '1rem' }}>
+                                    <div className="form-group">
+                                        <label className="form-label">Closure Type</label>
+                                        <select
+                                            id="earringClosure"
+                                            className="form-select"
+                                            value={formData.earringClosure}
+                                            onChange={handleInputChange}
+                                        >
+                                            <option value="">Select Closure</option>
+                                            {EARRING_CLOSURES.map(closure => (
+                                                <option key={closure} value={closure}>{closure}</option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
-                            ))}
-                        </div>
-                    </section>
-                )}
+                            )}
+                        </section>
+                    )
+                }
 
                 {/* Necklace Type Selection */}
-                {formData.category === 'Necklace and Pendant' && (
-                    <section className="section">
-                        <h2 className="section-title">What type of Necklace?</h2>
-                        <div className="grid grid-4">
-                            {NECKLACE_TYPES.map(type => (
-                                <div
-                                    key={type}
-                                    className={`visual-card-select ${formData.necklaceType === type ? 'active' : ''}`}
-                                    onClick={() => handleNecklaceTypeSelect(type)}
-                                >
-                                    <img src={getImage('necklaceTypes', type)} alt={type} />
-                                    <span className="visual-card-label">{type.toUpperCase()}</span>
+                {
+                    formData.category === 'Necklace and Pendant' && (
+                        <section className="section">
+                            <h2 className="section-title">What type of Necklace?</h2>
+                            <div className="grid grid-4">
+                                {NECKLACE_TYPES.map(type => (
+                                    <div
+                                        key={type}
+                                        className={`visual-card-select ${formData.necklaceType === type ? 'active' : ''}`}
+                                        onClick={() => handleNecklaceTypeSelect(type)}
+                                    >
+                                        <img src={getImage('necklaceTypes', type)} alt={type} />
+                                        <span className="visual-card-label">{type.toUpperCase()}</span>
+                                    </div>
+                                ))}
+                            </div>
+                            {formData.necklaceType && (
+                                <div className="grid grid-2" style={{ marginTop: '1rem' }}>
+                                    <div className="form-group">
+                                        <label className="form-label">Chain/Necklace Length</label>
+                                        <select
+                                            id="necklaceLength"
+                                            className="form-select"
+                                            value={formData.necklaceLength}
+                                            onChange={handleInputChange}
+                                        >
+                                            <option value="">Select Length</option>
+                                            {NECKLACE_LENGTHS.map(length => (
+                                                <option key={length} value={length}>{length}</option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
-                            ))}
-                        </div>
-                    </section>
-                )}
+                            )}
+                        </section>
+                    )
+                }
 
                 {/* Bracelet Type Selection */}
-                {formData.category === 'Bracelet' && (
-                    <section className="section">
-                        <h2 className="section-title">What type of Bracelet?</h2>
-                        <div className="grid grid-5">
-                            {BRACELET_TYPES.map(type => (
-                                <div
-                                    key={type}
-                                    className={`visual-card-select ${formData.braceletType === type ? 'active' : ''}`}
-                                    onClick={() => handleBraceletTypeSelect(type)}
-                                >
-                                    <img src={getImage('braceletTypes', type)} alt={type} />
-                                    <span className="visual-card-label">{type.toUpperCase()}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
-                )}
+                {
+                    formData.category === 'Bracelet' && (
+                        <section className="section">
+                            <h2 className="section-title">What type of Bracelet?</h2>
+                            <div className="grid grid-5">
+                                {BRACELET_TYPES.map(type => (
+                                    <div
+                                        key={type}
+                                        className={`visual-card-select ${formData.braceletType === type ? 'active' : ''}`}
+                                        onClick={() => handleBraceletTypeSelect(type)}
+                                    >
+                                        <img src={getImage('braceletTypes', type)} alt={type} />
+                                        <span className="visual-card-label">{type.toUpperCase()}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    )
+                }
 
                 {/* Ring Size */}
-                {formData.category === 'Ring' && formData.ringDesign && (
-                    <section className="section">
-                        <h2 className="section-title">Select Ring Size</h2>
-                        <div className="grid grid-2">
-                            <div className="form-group">
-                                <label className="form-label">Size System</label>
-                                <select className="form-select" value={formData.sizeSystem} disabled>
-                                    <option>South Africa</option>
-                                </select>
-                            </div>
-                            <div className="form-group">
-                                <label className="form-label">Size</label>
-                                <select
-                                    className="form-select"
-                                    value={formData.sizeValue}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, sizeValue: e.target.value }))}
-                                >
-                                    <option value="">Select Size</option>
-                                    {RING_SIZE_DATA['South Africa'].map(size => (
-                                        <option key={size} value={size}>{size}</option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-                    </section>
-                )}
-
-                {/* Diamond Band Specs */}
-                {formData.category === 'Ring' && (formData.ringDesign === 'Womens Wedding Bands and Eternity Rings' || formData.ringDesign === 'Diamond Band') && (
-                    <section className="section">
-                        <h2 className="section-title">Diamond Band Specifications</h2>
-                        <div className="grid grid-2">
-                            <div className="form-group">
-                                <label className="form-label">Diamond Coverage</label>
-                                <div className="grid grid-4">
-                                    {DIAMOND_COVERAGE_OPTIONS.map(option => (
-                                        <button
-                                            key={option}
-                                            className={`card-select ${formData.diamondCoverage === option ? 'active' : ''}`}
-                                            onClick={() => handleDiamondCoverageSelect(option)}
-                                        >
-                                            {option}
-                                        </button>
-                                    ))}
+                {
+                    formData.category === 'Ring' && formData.ringDesign && (
+                        <section className="section">
+                            <h2 className="section-title">Select Ring Size</h2>
+                            <div className="grid grid-2">
+                                <div className="form-group">
+                                    <label className="form-label">Size System</label>
+                                    <select className="form-select" value={formData.sizeSystem} disabled>
+                                        <option>South Africa</option>
+                                    </select>
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label">Size</label>
+                                    <select
+                                        className="form-select"
+                                        value={formData.sizeValue}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, sizeValue: e.target.value }))}
+                                    >
+                                        <option value="">Select Size</option>
+                                        {RING_SIZE_DATA['South Africa'].map(size => (
+                                            <option key={size} value={size}>{size}</option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
-                        </div>
-                    </section>
-                )}
+
+                        </section>
+                    )
+                }
+
+                {/* Diamond Band Specs */}
+                {
+                    formData.category === 'Ring' && (formData.ringDesign === 'Womens Wedding Bands and Eternity Rings' || formData.ringDesign === 'Diamond Band') && (
+                        <section className="section">
+                            <h2 className="section-title">Diamond Band Specifications</h2>
+                            <div className="grid grid-2">
+                                <div className="form-group">
+                                    <label className="form-label">Diamond Coverage</label>
+                                    <div className="grid grid-4">
+                                        {DIAMOND_COVERAGE_OPTIONS.map(option => (
+                                            <button
+                                                key={option}
+                                                className={`card-select ${formData.diamondCoverage === option ? 'active' : ''}`}
+                                                onClick={() => handleDiamondCoverageSelect(option)}
+                                            >
+                                                {option}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    )
+                }
 
                 {/* Gemstone Details */}
                 <section className="section">
@@ -592,34 +1060,155 @@ const BriefWizard = () => {
                 {/* Engraving */}
                 <section className="section">
                     <h2 className="section-title">Engraving</h2>
+
+                    {/* Font Selection */}
                     <div className="form-group">
-                        <input type="text" id="engraving" className="form-input" value={formData.engraving} onChange={handleInputChange} placeholder="Enter engraving text..." />
-                    </div>
-                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                        <input type="file" id="logo-upload" accept="image/*" style={{ display: 'none' }} onChange={handleLogoUpload} />
-                        <button className="btn btn-secondary" onClick={() => document.getElementById('logo-upload').click()}>
-                            Upload Logo
-                        </button>
-                        {formData.logo && (
-                            <div style={{ display: 'flex', alignItems: 'center' }}>
-                                <img src={formData.logo} alt="Logo" style={{ height: '4rem', width: '4rem', objectFit: 'contain', border: '1px solid var(--gray-300)', borderRadius: '0.375rem' }} />
-                                <button className="btn btn-danger" style={{ marginLeft: '0.5rem' }} onClick={() => setFormData(prev => ({ ...prev, logo: null }))}>
-                                    <i className="fas fa-trash"></i>
-                                </button>
+                        <label className="form-label">Choose your font</label>
+                        <div className="grid grid-2" style={{ gap: '1rem', marginTop: '0.75rem' }}>
+                            <div
+                                className={`visual-card-select ${formData.engravingFont === 'Regular' ? 'active' : ''}`}
+                                onClick={() => setFormData(prev => ({ ...prev, engravingFont: 'Regular' }))}
+                                style={{
+                                    padding: '2rem',
+                                    cursor: 'pointer',
+                                    textAlign: 'center',
+                                    border: formData.engravingFont === 'Regular' ? '2px solid #007bff' : '2px solid #e0e0e0',
+                                    borderRadius: '0.5rem',
+                                    background: formData.engravingFont === 'Regular' ? '#f0f7ff' : '#fff',
+                                    transition: 'all 0.3s ease'
+                                }}
+                            >
+                                <div style={{ fontSize: '2rem', fontFamily: 'Arial, sans-serif', marginBottom: '0.5rem' }}>
+                                    ABC abc 123
+                                </div>
+                                <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#666' }}>
+                                    Regular
+                                </div>
                             </div>
-                        )}
+
+                            <div
+                                className={`visual-card-select ${formData.engravingFont === 'Italic' ? 'active' : ''}`}
+                                onClick={() => setFormData(prev => ({ ...prev, engravingFont: 'Italic' }))}
+                                style={{
+                                    padding: '2rem',
+                                    cursor: 'pointer',
+                                    textAlign: 'center',
+                                    border: formData.engravingFont === 'Italic' ? '2px solid #007bff' : '2px solid #e0e0e0',
+                                    borderRadius: '0.5rem',
+                                    background: formData.engravingFont === 'Italic' ? '#f0f7ff' : '#fff',
+                                    transition: 'all 0.3s ease'
+                                }}
+                            >
+                                <div style={{ fontSize: '2rem', fontFamily: 'Georgia, serif', fontStyle: 'italic', marginBottom: '0.5rem' }}>
+                                    ABC abc 123
+                                </div>
+                                <div style={{ fontSize: '0.875rem', fontWeight: 600, color: '#666' }}>
+                                    Italic
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Engraving Text Input */}
+                    <div className="form-group">
+                        <label className="form-label">Type your engraving</label>
+                        <div style={{ position: 'relative' }}>
+                            <input
+                                type="text"
+                                id="engraving"
+                                className="form-input"
+                                value={formData.engraving}
+                                onChange={handleInputChange}
+                                placeholder="e.g. Forever & Always, John ❤️ Jane"
+                                maxLength="50"
+                                style={{
+                                    fontStyle: formData.engravingFont === 'Italic' ? 'italic' : 'normal',
+                                    fontFamily: formData.engravingFont === 'Italic' ? 'Georgia, serif' : 'Arial, sans-serif',
+                                    fontSize: '1.125rem',
+                                    paddingRight: '5rem'
+                                }}
+                            />
+                            <div style={{
+                                position: 'absolute',
+                                right: '1rem',
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                fontSize: '0.75rem',
+                                color: '#999'
+                            }}>
+                                {formData.engraving.length}/50
+                            </div>
+                        </div>
+                        <div style={{
+                            marginTop: '0.75rem',
+                            padding: '1.5rem',
+                            background: '#f9f9f9',
+                            borderRadius: '0.5rem',
+                            border: '1px solid #e0e0e0',
+                            textAlign: 'center'
+                        }}>
+                            <div style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                Preview
+                            </div>
+                            <div style={{
+                                fontSize: '1.5rem',
+                                fontStyle: formData.engravingFont === 'Italic' ? 'italic' : 'normal',
+                                fontFamily: formData.engravingFont === 'Italic' ? 'Georgia, serif' : 'Arial, sans-serif',
+                                color: formData.engraving ? '#333' : '#ccc',
+                                minHeight: '2rem'
+                            }}>
+                                {formData.engraving || 'Your engraving will appear here'}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Logo Upload */}
+                    <div className="form-group" style={{ marginTop: '1.5rem' }}>
+                        <label className="form-label">Or upload a logo</label>
+                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                            <input type="file" id="logo-upload" accept="image/*" style={{ display: 'none' }} onChange={handleLogoUpload} />
+                            <button className="btn btn-secondary" onClick={() => document.getElementById('logo-upload').click()}>
+                                <i className="fas fa-upload" style={{ marginRight: '0.5rem' }}></i>
+                                Upload Logo
+                            </button>
+                            {formData.logo && (
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.75rem',
+                                    padding: '0.75rem',
+                                    background: '#f9f9f9',
+                                    borderRadius: '0.5rem',
+                                    border: '1px solid #e0e0e0'
+                                }}>
+                                    <img src={formData.logo} alt="Logo" style={{
+                                        height: '4rem',
+                                        width: '4rem',
+                                        objectFit: 'contain',
+                                        border: '1px solid #ddd',
+                                        borderRadius: '0.375rem',
+                                        background: '#fff'
+                                    }} />
+                                    <button className="btn btn-danger" onClick={() => setFormData(prev => ({ ...prev, logo: null }))}>
+                                        <i className="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </section>
-            </main>
+            </main >
 
             {/* Summary Modal */}
-            {uiState.showSummaryModal && (
-                <SummaryView
-                    formData={formData}
-                    onClose={() => setUiState(prev => ({ ...prev, showSummaryModal: false }))}
-                />
-            )}
-        </div>
+            {
+                uiState.showSummaryModal && (
+                    <SummaryView
+                        formData={formData}
+                        onClose={() => setUiState(prev => ({ ...prev, showSummaryModal: false }))}
+                    />
+                )
+            }
+        </div >
     );
 };
 

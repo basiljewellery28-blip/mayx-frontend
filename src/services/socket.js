@@ -16,7 +16,7 @@ export const initSocket = () => {
         });
 
         socket.on('disconnect', () => {
-            console.log('Disconnected from WebSocket server');
+
         });
     }
     return socket;

@@ -50,9 +50,9 @@ const CreateBriefForm = ({ onClose, onBriefCreated }) => {
     };
 
     try {
-      console.log('Creating brief with data:', briefDataToSend);
+
       const response = await briefsAPI.create(briefDataToSend);
-      console.log('Brief created successfully:', response.data.brief);
+
       onBriefCreated(response.data.brief); // Call parent callback
       onClose(); // Close the modal
     } catch (err) {

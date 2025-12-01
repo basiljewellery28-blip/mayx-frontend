@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './AdminDashboard.css';
+import { briefsAPI } from '../services/api';
 
 // Constants for Image Management
 const CATEGORIES = ['Ring', 'Earring', 'Necklace and Pendant', 'Bracelet'];
@@ -19,6 +20,81 @@ const RING_DESIGNS = {
 
 const ADMIN_CONFIG = {
     password: 'admin123',
+};
+
+const RenderQueueSection = () => {
+    const [requests, setRequests] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchRequests = async () => {
+        try {
+            // In a real app, we'd have a specific endpoint or filter for this
+            // For now, fetch all and filter client-side
+            const res = await briefsAPI.getAll();
+            const pending = res.data.briefs.filter(b => b.render_status === 'render_requested');
+            setRequests(pending);
+        } catch (err) {
+            console.error("Error fetching render requests:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchRequests();
+    }, []);
+
+    const handleUpload = async (briefId, file) => {
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            await briefsAPI.uploadRender(briefId, formData);
+            alert('Render uploaded successfully!');
+            fetchRequests(); // Refresh list
+        } catch (err) {
+            alert('Failed to upload render');
+            console.error(err);
+        }
+    };
+
+    if (loading) return <div>Loading queue...</div>;
+
+    return (
+        <div className="admin-section">
+            <h2>Render Queue</h2>
+            <p className="section-desc">Manage pending render requests from consultants.</p>
+
+            {requests.length === 0 ? (
+                <div className="empty-state">No pending render requests.</div>
+            ) : (
+                <div className="requests-list">
+                    {requests.map(req => (
+                        <div key={req.id} className="request-card">
+                            <div className="req-info">
+                                <h4>{req.title}</h4>
+                                <span className="req-id">{req.brief_number}</span>
+                                <span className="req-date">Requested: {new Date(req.updated_at).toLocaleDateString()}</span>
+                            </div>
+                            <div className="req-actions">
+                                <label className="btn btn-primary">
+                                    Upload Render
+                                    <input
+                                        type="file"
+                                        hidden
+                                        accept="image/*"
+                                        onChange={(e) => handleUpload(req.id, e.target.files[0])}
+                                    />
+                                </label>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
 };
 
 const AdminDashboard = () => {
@@ -139,6 +215,9 @@ const AdminDashboard = () => {
                     <button className={`nav-item ${activeTab === 'images' ? 'active' : ''}`} onClick={() => setActiveTab('images')}>
                         <i className="fas fa-images"></i> Image Management
                     </button>
+                    <button className={`nav-item ${activeTab === 'renderQueue' ? 'active' : ''}`} onClick={() => setActiveTab('renderQueue')}>
+                        <i className="fas fa-paint-brush"></i> Render Queue
+                    </button>
                     <button className={`nav-item ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>
                         <i className="fas fa-users"></i> Users
                     </button>
@@ -171,6 +250,10 @@ const AdminDashboard = () => {
                             </div>
                         </div>
                     </div>
+                )}
+
+                {activeTab === 'renderQueue' && (
+                    <RenderQueueSection />
                 )}
 
                 {activeTab === 'images' && (
