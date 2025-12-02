@@ -1,0 +1,30 @@
+/* Dashboard.css */
+.dashboard-branding {
+    text-align: center;
+    padding: 3rem 0 2rem;
+    margin-bottom: 2rem;
+    background-color: var(--background);
+    border-bottom: 1px solid var(--border);
+}
+
+.browns-logo {
+    max-width: 200px;
+    height: auto;
+    margin-bottom: 1rem;
+}
+
+.brand-tagline {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+    font-weight: 500;
+}
+
+.dashboard-content {
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 0 2rem;
+}

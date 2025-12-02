@@ -1,0 +1,21 @@
+/* Footer.css */
+.footer {
+    background-color: #000000;
+    /* Black background */
+    color: #FFFFFF;
+    /* White text */
+    padding: 2rem 0;
+    margin-top: auto;
+    border-top: 1px solid #333;
+}
+
+.footer-bottom {
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 0 2rem;
+    text-align: center;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    font-family: var(--font-body);
+    text-transform: uppercase;
+}
