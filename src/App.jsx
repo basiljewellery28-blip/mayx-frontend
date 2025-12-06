@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
+import OverviewPage from './components/OverviewPage';
 import BriefWizard from './components/BriefWizard';
 import BriefList from './components/BriefList';
 import BriefDetail from './components/BriefDetail';
@@ -10,6 +11,7 @@ import CommentsSection from './components/CommentsSection';
 import UserProfile from './components/UserProfile';
 import ClientList from './components/ClientList';
 import AdminDashboard from './components/AdminDashboard';
+import ConsultantChat from './components/ConsultantChat';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import Footer from './components/Footer';
@@ -18,11 +20,12 @@ import './App.css';
 function App() {
   const location = useLocation();
   const isLoginPage = location.pathname === '/login' || location.pathname === '/register';
+  const isDashboardPage = location.pathname === '/dashboard';
 
   return (
     <div className="App">
       {!isLoginPage && <Navbar />}
-      <div style={{ minHeight: 'calc(100vh - 80px - 300px)' }}> {/* Push footer down */}
+      <div className={isDashboardPage ? '' : 'content-wrapper'}>
         <Routes>
           {/* Public Routes */}
           <Route path="/login" element={<Login />} />
@@ -34,6 +37,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/overview"
+            element={
+              <ProtectedRoute>
+                <OverviewPage />
               </ProtectedRoute>
             }
           />
@@ -93,12 +104,20 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/messages"
+            element={
+              <ProtectedRoute>
+                <ConsultantChat />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Default redirect */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </div>
-      {!isLoginPage && <Footer />}
+      {!isLoginPage && !isDashboardPage && <Footer />}
     </div>
   );
 }

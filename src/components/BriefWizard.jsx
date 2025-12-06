@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { briefsAPI, usersAPI, productsAPI } from '../services/api';
+import api, { briefsAPI, usersAPI, productsAPI } from '../services/api';
 import ProductSearch from './ProductSearch';
 import SummaryView from './SummaryView';
 import ProductSlider from './ProductSlider';
@@ -142,6 +142,8 @@ const BriefWizard = () => {
     const [drops, setDrops] = useState([]);
     const [hoops, setHoops] = useState([]);
     const [originalAngel, setOriginalAngel] = useState([]);
+    const [lookingUpClient, setLookingUpClient] = useState(false);
+    const [clientLookupMessage, setClientLookupMessage] = useState(null);
 
     // Selection Handlers
     const handleMensRingSelect = (ring) => {
@@ -202,6 +204,42 @@ const BriefWizard = () => {
             ...prev,
             description: `${prev.description ? prev.description + '\n' : ''}Selected Earring: ${angel.name} (SKU: ${angel.sku})`
         }));
+    };
+
+    // Lookup client by Profile Number (format: AA092275)
+    const handleLookupClient = async () => {
+        if (!formData.clientProfile) return;
+
+        setLookingUpClient(true);
+        setClientLookupMessage(null);
+
+        try {
+            const response = await api.post('/messages/lookup-client', {
+                profile_number: formData.clientProfile.toUpperCase()
+            });
+
+            // Auto-populate client data
+            setFormData(prev => ({
+                ...prev,
+                clientName: response.data.client.name || prev.clientName,
+                clientEmail: response.data.client.email || prev.clientEmail,
+                clientContact: response.data.client.contact_number || prev.clientContact,
+                clientProfile: response.data.client.profile_number || prev.clientProfile
+            }));
+
+            const briefCount = response.data.briefs?.length || 0;
+            setClientLookupMessage({
+                type: 'success',
+                text: `✓ Found: ${response.data.client.name} (${briefCount} existing brief${briefCount !== 1 ? 's' : ''})`
+            });
+        } catch (error) {
+            setClientLookupMessage({
+                type: 'error',
+                text: error.response?.data?.message || 'Client not found'
+            });
+        } finally {
+            setLookingUpClient(false);
+        }
     };
 
     // Fetch products on mount
@@ -474,7 +512,30 @@ const BriefWizard = () => {
                         </div>
                         <div className="form-group">
                             <label className="form-label">Client Profile Number</label>
-                            <input type="text" id="clientProfile" className="form-input" value={formData.clientProfile} onChange={handleInputChange} placeholder="Enter client profile number" />
+                            <div className="profile-lookup-input">
+                                <input
+                                    type="text"
+                                    id="clientProfile"
+                                    className="form-input"
+                                    value={formData.clientProfile}
+                                    onChange={handleInputChange}
+                                    placeholder="e.g. AA092275"
+                                    style={{ textTransform: 'uppercase' }}
+                                />
+                                <button
+                                    type="button"
+                                    className="btn btn-lookup"
+                                    onClick={handleLookupClient}
+                                    disabled={lookingUpClient || !formData.clientProfile}
+                                >
+                                    {lookingUpClient ? 'Looking...' : 'Lookup'}
+                                </button>
+                            </div>
+                            {clientLookupMessage && (
+                                <span className={`lookup-message ${clientLookupMessage.type}`}>
+                                    {clientLookupMessage.text}
+                                </span>
+                            )}
                         </div>
                     </div>
                     <div className="grid grid-2">

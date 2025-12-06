@@ -55,30 +55,163 @@
     margin-bottom: 0.2rem;
 }
 
-/* Bottom Row: Tagline */
+/* Bottom Row: Tagline - Browns Pink/Blush */
 .navbar-tagline-bar {
-    background-color: #FAF9F7;
-    /* Exact Browns pink/beige */
+    background-color: #F5E6E0;
+    /* Browns blush pink */
     padding: 0.6rem 0;
     text-align: center;
-    border-bottom: 1px solid #EFEBE9;
+    border-bottom: 1px solid #EDD9D3;
 }
 
 .brand-tagline {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Helvetica Neue', 'Arial', sans-serif;
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 2px;
     color: #5D4037;
-    font-weight: 500;
+    /* Browns brown */
+    font-weight: 400;
 }
 
-/* Menu (Left) */
+/* Menu Toggle (Left) */
 .navbar-menu {
+    position: relative;
     display: flex;
-    gap: 2rem;
+    align-items: center;
 }
 
+.menu-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: opacity 0.2s;
+}
+
+.menu-toggle:hover {
+    opacity: 0.7;
+}
+
+.menu-icon {
+    font-size: 1.2rem;
+    color: #1A1A1A;
+}
+
+.menu-text {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #1A1A1A;
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #FFFFFF;
+    border: 1px solid #E5E5E5;
+    border-radius: 4px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    min-width: 180px;
+    padding: 0.5rem 0;
+    margin-top: 0.5rem;
+    animation: dropdownSlide 0.2s ease;
+    z-index: 100;
+}
+
+.dropdown-right {
+    left: auto;
+    right: 0;
+}
+
+@keyframes dropdownSlide {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-item {
+    display: block;
+    padding: 0.75rem 1.25rem;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #1A1A1A;
+    text-decoration: none;
+    transition: background-color 0.2s;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background-color: #F5F5F5;
+}
+
+.dropdown-item.active {
+    color: #D4AF37;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background-color: #E5E5E5;
+    margin: 0.5rem 0;
+}
+
+.dropdown-logout {
+    color: #D32F2F;
+}
+
+.dropdown-logout:hover {
+    background-color: #FFF5F5;
+}
+
+/* Profile Toggle */
+.navbar-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+}
+
+.profile-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: opacity 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-toggle:hover {
+    opacity: 0.7;
+}
+
+.profile-icon {
+    width: 24px;
+    height: 24px;
+    color: #1A1A1A;
+}
+
+/* Nav Link (for login) */
 .nav-link {
     font-family: 'Montserrat', sans-serif;
     font-size: 0.8rem;
@@ -86,62 +219,29 @@
     text-transform: uppercase;
     letter-spacing: 1px;
     color: #000000;
-    position: relative;
-    transition: color 0.2s ease;
     text-decoration: none;
+    transition: color 0.2s ease;
 }
 
 .nav-link:hover {
     color: #D4AF37;
 }
 
-.nav-link.active {
-    color: #000000;
-    font-weight: 600;
-}
-
-.nav-link.active::after {
-    content: '';
-    position: absolute;
-    bottom: -4px;
-    left: 0;
-    width: 100%;
-    height: 1px;
-    background-color: #000000;
-}
-
-/* Actions (Right) */
-.navbar-actions {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 1.5rem;
-}
-
-.btn-logout {
-    background: none;
-    border: none;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #666666;
-    cursor: pointer;
-    transition: color 0.2s;
-}
-
-.btn-logout:hover {
-    color: #D32F2F;
-}
-
 /* Responsive */
 @media (max-width: 768px) {
     .navbar-container {
-        display: flex;
-        justify-content: space-between;
+        padding: 0 1rem;
     }
 
-    .navbar-menu {
+    .menu-text {
         display: none;
+    }
+
+    .brand-name {
+        font-size: 1.6rem;
+    }
+
+    .brand-logo {
+        height: 22px;
     }
 }

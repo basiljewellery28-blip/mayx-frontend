@@ -1,30 +1,133 @@
 /* Dashboard.css */
-.dashboard-branding {
+
+/* Dashboard Page - Full height */
+.dashboard-page {
+    min-height: calc(100vh - 120px);
+}
+
+/* Hero Section - Full Screen */
+.hero-section {
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 120px);
+    min-height: 500px;
+    background-image: url('https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=2070');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom,
+            rgba(0, 0, 0, 0.15) 0%,
+            rgba(0, 0, 0, 0.35) 50%,
+            rgba(0, 0, 0, 0.45) 100%);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
     text-align: center;
-    padding: 3rem 0 2rem;
-    margin-bottom: 2rem;
-    background-color: var(--background);
-    border-bottom: 1px solid var(--border);
+    color: #FFFFFF;
+    padding: 2rem;
+    max-width: 800px;
 }
 
-.browns-logo {
-    max-width: 200px;
-    height: auto;
-    margin-bottom: 1rem;
-}
-
-.brand-tagline {
-    font-family: var(--font-body);
-    font-size: 0.9rem;
+/* Browns exact hero title style - clean sans-serif with normal spacing */
+.hero-title {
+    font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+    font-size: 2.8rem;
+    font-weight: 400;
+    letter-spacing: 1px;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
+    color: #FFFFFF;
     text-transform: uppercase;
-    letter-spacing: 3px;
-    color: var(--text-muted);
-    margin-top: 0.5rem;
-    font-weight: 500;
 }
 
+.hero-title em {
+    font-style: normal;
+}
+
+.hero-subtitle {
+    font-family: 'Helvetica Neue', 'Arial', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 300;
+    letter-spacing: 1px;
+    margin-bottom: 2.5rem;
+    opacity: 0.9;
+    color: #FFFFFF;
+}
+
+.hero-btn {
+    display: inline-block;
+    padding: 1rem 2rem;
+    background-color: transparent;
+    color: #FFFFFF;
+    border: none;
+    font-family: 'Helvetica Neue', 'Arial', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: underline;
+    text-underline-offset: 6px;
+}
+
+.hero-btn:hover {
+    opacity: 0.8;
+}
+
+/* Dashboard Content (for other pages) */
 .dashboard-content {
     max-width: var(--container-width);
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 3rem 2rem;
+}
+
+.dashboard {
+    min-height: calc(100vh - 200px);
+    background-color: #FAF9F7;
+}
+
+/* Old branding - hide */
+.dashboard-branding {
+    display: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-section {
+        height: calc(100vh - 100px);
+        min-height: 400px;
+    }
+
+    .hero-title {
+        font-size: 1.8rem;
+        letter-spacing: 4px;
+    }
+
+    .hero-subtitle {
+        font-size: 0.85rem;
+    }
+
+    .hero-btn {
+        padding: 0.875rem 1.5rem;
+        font-size: 0.7rem;
+    }
+
+    .dashboard-content {
+        padding: 2rem 1rem;
+    }
 }

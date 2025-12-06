@@ -259,3 +259,47 @@
     background: var(--background);
     border-top: 1px solid var(--border);
 }
+
+/* Profile Lookup Styles */
+.profile-lookup-input {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.profile-lookup-input .form-input {
+    flex: 1;
+}
+
+.btn-lookup {
+    padding: 0.8rem 1.2rem;
+    background: var(--secondary);
+    color: var(--primary);
+    border: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-lookup:hover:not(:disabled) {
+    opacity: 0.9;
+}
+
+.btn-lookup:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.lookup-message {
+    display: block;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+}
+
+.lookup-message.success {
+    color: #2E7D32;
+}
+
+.lookup-message.error {
+    color: #C62828;
+}
